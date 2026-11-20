@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import { stopTracking } from "@/features/on-route/background/tracking";
 import { apiFetch, isUnauthorized } from "@/lib/api/client";
 
 export type Role = "driver" | "employee" | "admin" | "owner";
@@ -42,6 +43,8 @@ export function useLogout() {
     mutationFn: () => apiFetch<{ ok: true }>("/api/logout", { method: "POST" }),
     // Sign out locally even if the request fails; the cookie is useless without the session anyway.
     onSettled: () => {
+      // A signed-out device must stop reporting the vehicle's position.
+      void stopTracking();
       queryClient.removeQueries({ predicate: (q) => q.queryKey[0] !== sessionQueryKey[0] });
       queryClient.setQueryData(sessionQueryKey, null);
     },

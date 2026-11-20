@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { apiFetch } from "@/lib/api/client";
 
@@ -68,5 +68,15 @@ export function useTour(id: string) {
         .getQueriesData<ToursResponse>({ queryKey: ["tours"] })
         .flatMap(([, data]) => data?.tours ?? [])
         .find((tour) => tour.id === id),
+  });
+}
+
+/** PATCH /api/tours/:id/status, then reload every tour query so lists and the tour itself agree. */
+export function useSetTourStatus() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, status }: { id: string; status: TourStatus }) =>
+      apiFetch<{ id: string }>(`/api/tours/${encodeURIComponent(id)}/status`, { method: "PATCH", body: { status } }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["tours"] }),
   });
 }

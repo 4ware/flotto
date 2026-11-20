@@ -8,7 +8,8 @@
     "scheme": "flotto",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/expo.icon",
+      "bundleIdentifier": "to.flot.flotto"
     },
     "android": {
       "adaptiveIcon": {
@@ -17,7 +18,8 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "to.flot.flotto"
     },
     "web": {
       "output": "server",
@@ -37,7 +39,23 @@
           }
         }
       ],
-      "expo-sqlite"
+      "expo-sqlite",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "flotto nutzt Ihren Standort, um die Position Ihres Fahrzeugs während der Tour zu melden.",
+          "locationAlwaysAndWhenInUsePermission": "flotto meldet die Position Ihres Fahrzeugs auch im Hintergrund, solange eine Tour läuft, und erkennt, wenn Sie das Ziel erreichen.",
+          "isIosBackgroundLocationEnabled": true,
+          "isAndroidBackgroundLocationEnabled": true,
+          "isAndroidForegroundServiceEnabled": true
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#174f3e"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

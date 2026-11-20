@@ -1,6 +1,8 @@
 import "../global.css";
 // localStorage for src/state/app-state.tsx (expo-sqlite on native, the browser's own on web).
 import "@/state/install-local-storage";
+// Background tasks must be defined at module load, also when Android starts the app only to run one.
+import "@/features/on-route/background/tasks";
 
 import { useEffect, useState } from "react";
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from "expo-router";
@@ -16,6 +18,7 @@ import {
   DMSans_700Bold,
 } from "@expo-google-fonts/dm-sans";
 
+import { useArrivalNotificationResponse } from "@/features/on-route/background/use-arrival-notification-response";
 import { useSession } from "@/lib/api/auth";
 import { queryClient } from "@/lib/query-client";
 import { AppStateProvider } from "@/state/app-state";
@@ -60,6 +63,9 @@ function RootNavigator() {
     if (ready) SplashScreen.hideAsync();
   }, [ready]);
 
+  // Navigation needs the signed-in stack mounted.
+  useArrivalNotificationResponse(ready && !!session.data);
+
   if (!ready) return null;
 
   const signedIn = !!session.data;
@@ -83,6 +89,7 @@ function RootNavigator() {
         <Stack.Protected guard={signedIn}>
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="tour/[id]" />
+          <Stack.Screen name="on-route/[id]" />
         </Stack.Protected>
         <Stack.Protected guard={!signedIn}>
           <Stack.Screen name="login" />

@@ -1,7 +1,7 @@
 import type { ComponentType } from "react";
 import { ActivityIndicator, RefreshControl, ScrollView, Text, View } from "react-native";
 import { router } from "expo-router";
-import { Building2, CalendarDays, Clock, Flag, MapPin, Truck, type LucideProps } from "lucide-react-native";
+import { Building2, CalendarDays, Clock, Flag, MapPin, Navigation, Play, Truck, type LucideProps } from "lucide-react-native";
 
 import { ScreenHeader } from "@/components/screen-header";
 import { Badge } from "@/components/ui/badge";
@@ -11,7 +11,7 @@ import { Eyebrow } from "@/components/ui/eyebrow";
 import { dayKey, dayLabel, formatTime, statusTone } from "@/features/tours/tour-card";
 import { usePalette } from "@/hooks/use-palette";
 import { ApiError } from "@/lib/api/client";
-import { useTour } from "@/lib/api/tours";
+import { useSetTourStatus, useTour } from "@/lib/api/tours";
 import { messages } from "@/lib/messages";
 
 function Row({ icon: Icon, label, value }: { icon: ComponentType<LucideProps>; label: string; value: string }) {
@@ -35,6 +35,13 @@ export function TourScreen({ id }: { id: string }) {
   const colors = usePalette();
   const tour = useTour(id);
   const data = tour.data;
+  const setStatus = useSetTourStatus();
+
+  const openRoute = () => router.push({ pathname: "/on-route/[id]", params: { id } });
+  const start = () => {
+    if (setStatus.isPending) return;
+    setStatus.mutate({ id, status: "started" }, { onSuccess: openRoute });
+  };
   const startDay = data ? dayKey(new Date(data.startsAt)) : "";
   const endDay = data ? dayKey(new Date(data.endsAt)) : "";
 
@@ -90,6 +97,16 @@ export function TourScreen({ id }: { id: string }) {
             <Row icon={Building2} label="Kunde" value={data.customerName} />
             <Row icon={Truck} label="Fahrzeug" value={data.licensePlate} />
           </Card>
+
+          <View className="gap-2 pt-3">
+            {data.status === "pending" && (
+              <Button label={setStatus.isPending ? "Wird gestartet …" : "Tour starten"} icon={Play} onPress={start} />
+            )}
+            {data.status === "started" && <Button label="Unterwegs-Ansicht öffnen" icon={Navigation} onPress={openRoute} />}
+            {setStatus.error && (
+              <Text className="text-center font-sans text-sm text-destructive">{setStatus.error.message}</Text>
+            )}
+          </View>
         </View>
       ) : (
         <View className="items-center gap-4 px-6 pt-12">
