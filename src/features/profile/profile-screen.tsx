@@ -1,7 +1,7 @@
 import { ActivityIndicator, ScrollView, View } from "react-native";
 import { Bell, CalendarDays, ChevronRight, LogOut, type LucideIcon } from "lucide-react-native";
 
-import { BrandMark } from "@/components/brand-mark";
+import { Logo } from "@/components/logo";
 import { ScreenHeader } from "@/components/screen-header";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -72,7 +72,7 @@ export function ProfileScreen() {
           <Row icon={LogOut} label={messages.Common.logout} onPress={() => logout.mutate()} busy={logout.isPending} />
         </Card>
         <View className="items-center gap-2">
-          <BrandMark />
+          <Logo />
           <Text className="font-sans text-xs text-subtle-foreground">Fahrer-App · Version 1.0.0</Text>
         </View>
       </View>
