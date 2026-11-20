@@ -1,4 +1,5 @@
 [test]
-# Stand-ins for react-native and native modules; see src/test/setup.ts.
-preload = ["./src/test/setup.ts"]
+# src/test/jsx-in-js.ts lets Bun load @rn-primitives (JSX in .js files);
+# src/test/setup.ts swaps in stand-ins for react-native and native modules.
+preload = ["./src/test/jsx-in-js.ts", "./src/test/setup.ts"]
 root = "./src"

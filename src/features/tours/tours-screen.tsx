@@ -1,9 +1,10 @@
 import { useMemo } from "react";
-import { ActivityIndicator, RefreshControl, SectionList, Text, View } from "react-native";
+import { ActivityIndicator, RefreshControl, SectionList, View } from "react-native";
 
 import { ScreenHeader } from "@/components/screen-header";
 import { Button } from "@/components/ui/button";
 import { Eyebrow } from "@/components/ui/eyebrow";
+import { Text } from "@/components/ui/text";
 import { dayKey, dayLabel, TourCard } from "@/features/tours/tour-card";
 import { usePalette } from "@/hooks/use-palette";
 import { useTours, type Tour } from "@/lib/api/tours";
@@ -71,7 +72,9 @@ export function ToursScreen() {
           ) : tours.isError ? (
             <>
               <Text className="text-center font-sans text-sm text-destructive">{tours.error.message}</Text>
-              <Button label="Erneut versuchen" variant="outline" onPress={() => void tours.refetch()} />
+              <Button variant="outline" onPress={() => void tours.refetch()}>
+                <Text>Erneut versuchen</Text>
+              </Button>
             </>
           ) : (
             <Text className="text-center font-sans text-sm text-muted-foreground">

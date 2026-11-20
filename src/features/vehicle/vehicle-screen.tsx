@@ -1,12 +1,16 @@
-import { ActivityIndicator, FlatList, Pressable, RefreshControl, Text, View } from "react-native";
+import { ActivityIndicator, FlatList, Pressable, RefreshControl, View } from "react-native";
 import { router } from "expo-router";
 import { CircleCheck, LogOut, MapPin, Truck } from "lucide-react-native";
 
 import { ScreenHeader } from "@/components/screen-header";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Icon } from "@/components/ui/icon";
+import { Text } from "@/components/ui/text";
 import { usePalette } from "@/hooks/use-palette";
 import { useVehicles, type Vehicle } from "@/lib/api/vehicles";
 import { messages } from "@/lib/messages";
+import { cn } from "@/lib/utils";
 import { useAppState } from "@/state/app-state";
 
 const t = messages.Vehicles;
@@ -15,7 +19,6 @@ const formatMileage = (km: number | null) =>
   km === null ? "Kilometerstand unbekannt" : `${km.toLocaleString("de-DE")} km`;
 
 function VehicleRow({ vehicle, selected, onPress }: { vehicle: Vehicle; selected: boolean; onPress: () => void }) {
-  const colors = usePalette();
   const hasPosition = vehicle.latitude !== null && vehicle.longitude !== null;
 
   return (
@@ -24,30 +27,28 @@ function VehicleRow({ vehicle, selected, onPress }: { vehicle: Vehicle; selected
       accessibilityRole="button"
       accessibilityState={{ selected }}
       accessibilityHint="Wählt das Fahrzeug und öffnet die heutige Übersicht"
-      className={`flex-row items-center gap-3 rounded-xl border bg-card p-4 active:opacity-80 ${
-        selected ? "border-primary" : "border-border"
-      }`}
+      className="active:opacity-80"
     >
-      <View
-        className={`size-11 items-center justify-center rounded-lg ${selected ? "bg-primary" : "bg-secondary"}`}
-      >
-        <Truck size={20} color={selected ? colors["primary-foreground"] : colors.primary} />
-      </View>
-
-      <View className="flex-1 gap-0.5">
-        <Text className="font-heading text-base text-foreground">{vehicle.licensePlate}</Text>
-        <View className="flex-row flex-wrap items-center gap-x-2">
-          <Text className="font-sans text-xs text-muted-foreground">{formatMileage(vehicle.mileage)}</Text>
-          {hasPosition && (
-            <View className="flex-row items-center gap-1">
-              <MapPin size={12} color={colors.brand} />
-              <Text className="font-sans text-xs text-brand">Position bekannt</Text>
-            </View>
-          )}
+      <Card className={cn("flex-row items-center gap-3 p-4", selected && "border-primary")}>
+        <View className={cn("size-11 items-center justify-center rounded-lg", selected ? "bg-primary" : "bg-secondary")}>
+          <Icon as={Truck} size={20} className={selected ? "text-primary-foreground" : "text-primary"} />
         </View>
-      </View>
 
-      {selected && <CircleCheck size={20} color={colors.primary} />}
+        <View className="flex-1 gap-0.5">
+          <Text className="font-heading">{vehicle.licensePlate}</Text>
+          <View className="flex-row flex-wrap items-center gap-x-2">
+            <Text className="text-xs text-muted-foreground">{formatMileage(vehicle.mileage)}</Text>
+            {hasPosition && (
+              <View className="flex-row items-center gap-1">
+                <Icon as={MapPin} size={12} className="text-brand" />
+                <Text className="text-xs text-brand">Position bekannt</Text>
+              </View>
+            )}
+          </View>
+        </View>
+
+        {selected && <Icon as={CircleCheck} size={20} className="text-primary" />}
+      </Card>
     </Pressable>
   );
 }
@@ -90,14 +91,14 @@ export function VehicleScreen() {
               {chosen ? "Tippen Sie auf ein anderes Fahrzeug, um zu wechseln." : "Mit welchem Fahrzeug sind Sie heute unterwegs?"}
             </Text>
             {choosenVehicleId !== null && (
-              <Pressable
+              <Button
+                variant="outline"
                 onPress={() => setChoosenVehicleId(null)}
-                accessibilityRole="button"
-                className="mt-4 flex-row items-center gap-2 self-start rounded-lg border border-primary-foreground/20 bg-primary-foreground/10 px-3.5 py-2 active:bg-primary-foreground/20"
+                className="mt-4 self-start border-primary-foreground/20 bg-primary-foreground/10 active:bg-primary-foreground/20"
               >
-                <LogOut size={16} color={colors["primary-foreground"]} />
-                <Text className="font-sans-semibold text-sm text-primary-foreground">Fahrzeug verlassen</Text>
-              </Pressable>
+                <Icon as={LogOut} size={16} className="text-primary-foreground" />
+                <Text className="font-sans-semibold text-primary-foreground">Fahrzeug verlassen</Text>
+              </Button>
             )}
           </ScreenHeader>
         </View>
@@ -109,7 +110,9 @@ export function VehicleScreen() {
           ) : vehicles.isError ? (
             <>
               <Text className="text-center font-sans text-sm text-destructive">{vehicles.error.message}</Text>
-              <Button label="Erneut versuchen" variant="outline" onPress={() => void vehicles.refetch()} />
+              <Button variant="outline" onPress={() => void vehicles.refetch()}>
+                <Text>Erneut versuchen</Text>
+              </Button>
             </>
           ) : (
             <Text className="text-center font-sans text-sm text-muted-foreground">{t.empty}</Text>

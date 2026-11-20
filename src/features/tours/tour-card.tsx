@@ -1,14 +1,13 @@
-import { Pressable, Text, View } from "react-native";
+import { Pressable, View } from "react-native";
 import { router } from "expo-router";
 import { ArrowDown, ChevronRight } from "lucide-react-native";
 
-import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { usePalette } from "@/hooks/use-palette";
+import { Icon } from "@/components/ui/icon";
+import { Text } from "@/components/ui/text";
 import type { Tour } from "@/lib/api/tours";
-import { messages } from "@/lib/messages";
 
-export const statusTone = { pending: "brand", started: "warning", complete: "muted" } as const;
+import { TourStatusBadge } from "./tour-status-badge";
 
 // Tours are planned in German time, whatever the device's zone.
 const TIME_ZONE = "Europe/Berlin";
@@ -46,7 +45,6 @@ export function dayLabel(key: string, now = new Date()) {
 
 /** Opens the tour's own screen when tapped. */
 export function TourCard({ tour }: { tour: Tour }) {
-  const colors = usePalette();
   return (
     <Pressable
       onPress={() => router.push({ pathname: "/tour/[id]", params: { id: tour.id } })}
@@ -54,23 +52,23 @@ export function TourCard({ tour }: { tour: Tour }) {
       accessibilityHint="Öffnet die Tour"
       className="active:opacity-80"
     >
-      <Card className="gap-3">
+      <Card className="gap-3 p-4">
         <View className="flex-row items-center justify-between gap-3">
-          <Text className="font-heading text-base text-foreground">
+          <Text className="font-heading">
             {formatTime(tour.startsAt)} – {formatTime(tour.endsAt)}
           </Text>
-          <Badge label={messages.Tours.statuses[tour.status]} tone={statusTone[tour.status]} />
+          <TourStatusBadge status={tour.status} />
         </View>
 
         <View className="gap-1">
-          <Text className="font-sans-medium text-sm text-foreground">{tour.startAddress}</Text>
-          <ArrowDown size={14} color={colors["subtle-foreground"]} />
-          <Text className="font-sans-medium text-sm text-foreground">{tour.destinationAddress}</Text>
+          <Text className="font-sans-medium text-sm">{tour.startAddress}</Text>
+          <Icon as={ArrowDown} className="text-subtle-foreground" />
+          <Text className="font-sans-medium text-sm">{tour.destinationAddress}</Text>
         </View>
 
         <View className="flex-row items-center justify-between gap-3">
-          <Text className="flex-1 font-sans text-xs text-muted-foreground">Kunde · {tour.customerName}</Text>
-          <ChevronRight size={18} color={colors["subtle-foreground"]} />
+          <Text className="flex-1 text-xs text-muted-foreground">Kunde · {tour.customerName}</Text>
+          <Icon as={ChevronRight} size={18} className="text-subtle-foreground" />
         </View>
       </Card>
     </Pressable>

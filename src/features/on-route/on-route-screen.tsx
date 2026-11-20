@@ -1,8 +1,9 @@
-import { ActivityIndicator, Linking, Text, View } from "react-native";
+import { ActivityIndicator, Linking, View } from "react-native";
 import { router } from "expo-router";
 
 import { ScreenHeader } from "@/components/screen-header";
 import { Button } from "@/components/ui/button";
+import { Text } from "@/components/ui/text";
 import { formatTime } from "@/features/tours/tour-card";
 import { usePalette } from "@/hooks/use-palette";
 import { useSetTourStatus, useTour } from "@/lib/api/tours";
@@ -79,7 +80,9 @@ export function OnRouteScreen({ id }: { id: string }) {
             ) : (
               <>
                 <Text className="text-center font-sans text-sm text-destructive">{tour.error?.message}</Text>
-                <Button label="Erneut versuchen" variant="outline" onPress={() => void tour.refetch()} />
+                <Button variant="outline" onPress={() => void tour.refetch()}>
+                  <Text>Erneut versuchen</Text>
+                </Button>
               </>
             )}
           </View>
@@ -87,9 +90,15 @@ export function OnRouteScreen({ id }: { id: string }) {
           <View className="flex-1 items-center justify-center gap-4 px-6">
             <Text className="text-center font-sans text-sm text-muted-foreground">{problem.text}</Text>
             {problem.settings && (
-              <Button label="Einstellungen öffnen" variant="outline" onPress={() => void Linking.openSettings()} />
+              <Button variant="outline" onPress={() => void Linking.openSettings()}>
+                <Text>Einstellungen öffnen</Text>
+              </Button>
             )}
-            {problem.retry !== false && <Button label="Erneut versuchen" onPress={tracking.retry} />}
+            {problem.retry !== false && (
+  <Button onPress={tracking.retry}>
+    <Text>Erneut versuchen</Text>
+  </Button>
+)}
           </View>
         ) : !active?.position ? (
           <View className="flex-1 items-center justify-center gap-3">

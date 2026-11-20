@@ -5,7 +5,8 @@ import "@/state/install-local-storage";
 import "@/features/on-route/background/tasks";
 
 import { useEffect, useState } from "react";
-import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from "expo-router";
+import { Stack, ThemeProvider } from "expo-router";
+import { PortalHost } from "@rn-primitives/portal";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useFonts } from "expo-font";
@@ -20,10 +21,10 @@ import {
 
 import { useArrivalNotificationResponse } from "@/features/on-route/background/use-arrival-notification-response";
 import { useSession } from "@/lib/api/auth";
+import { NAV_THEME } from "@/lib/theme";
 import { queryClient } from "@/lib/query-client";
 import { AppStateProvider } from "@/state/app-state";
 import { loadColorSchemePreference, useResolvedColorScheme } from "@/theme/color-scheme";
-import { palette } from "@/theme/palette";
 
 SplashScreen.preventAutoHideAsync();
 const schemeLoaded = loadColorSchemePreference();
@@ -40,7 +41,6 @@ export default function RootLayout() {
 
 function RootNavigator() {
   const scheme = useResolvedColorScheme();
-  const colors = palette[scheme];
   const session = useSession();
   const [schemeReady, setSchemeReady] = useState(false);
   const [fontsLoaded, fontError] = useFonts({
@@ -69,21 +69,9 @@ function RootNavigator() {
   if (!ready) return null;
 
   const signedIn = !!session.data;
-  const base = scheme === "dark" ? DarkTheme : DefaultTheme;
-  const theme = {
-    ...base,
-    colors: {
-      ...base.colors,
-      primary: colors.primary,
-      background: colors.background,
-      card: colors.card,
-      text: colors.foreground,
-      border: colors.border,
-    },
-  };
 
   return (
-    <ThemeProvider value={theme}>
+    <ThemeProvider value={NAV_THEME[scheme]}>
       <Stack screenOptions={{ headerShown: false }}>
         {/* Signed out, only the login screen exists; the app's screens redirect to it. */}
         <Stack.Protected guard={signedIn}>
@@ -97,6 +85,8 @@ function RootNavigator() {
       </Stack>
       {/* Light text on the green header; the login screen has a light surface. */}
       <StatusBar style={!signedIn ? "auto" : scheme === "dark" ? "dark" : "light"} />
+      {/* Where React Native Reusables' menus and dialogs render (last, above everything). */}
+      <PortalHost />
     </ThemeProvider>
   );
 }

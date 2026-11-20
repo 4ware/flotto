@@ -1,10 +1,12 @@
 import type { ReactNode } from "react";
-import { Pressable, Text, View } from "react-native";
+import { View } from "react-native";
 import { ChevronLeft } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { ModeToggle } from "@/components/mode-toggle";
-import { usePalette } from "@/hooks/use-palette";
+import { Button } from "@/components/ui/button";
+import { Icon } from "@/components/ui/icon";
+import { Text } from "@/components/ui/text";
 
 /** Deep-green header block, as in the flot.to driver-app mockup. Always carries the color-scheme toggle. */
 export function ScreenHeader({
@@ -22,21 +24,21 @@ export function ScreenHeader({
   children?: ReactNode;
 }) {
   const { top } = useSafeAreaInsets();
-  const colors = usePalette();
   return (
     <View className="rounded-b-3xl bg-primary px-5 pb-6" style={{ paddingTop: top + 16 }}>
       <View className="flex-row items-center justify-between">
         <View className="flex-row items-center gap-2">
           {onBack && (
-            <Pressable
+            <Button
+              variant="ghost"
+              size="icon"
               onPress={onBack}
-              accessibilityRole="button"
               accessibilityLabel="Zurück"
               hitSlop={8}
-              className="size-9 items-center justify-center rounded-full bg-primary-foreground/15 active:bg-primary-foreground/25"
+              className="size-9 rounded-full bg-primary-foreground/15 active:bg-primary-foreground/25"
             >
-              <ChevronLeft size={18} color={colors["primary-foreground"]} />
-            </Pressable>
+              <Icon as={ChevronLeft} size={18} className="text-primary-foreground" />
+            </Button>
           )}
           <Text className="font-sans-semibold text-xs tracking-wide text-primary-foreground/75">{overline}</Text>
         </View>
