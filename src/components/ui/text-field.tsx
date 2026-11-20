@@ -1,9 +1,14 @@
 import { useState, type Ref } from "react";
-import { Pressable, Text, TextInput, View, type TextInputInstance, type TextInputProps } from "react-native";
+import { View, type TextInputInstance, type TextInputProps } from "react-native";
 import { Eye, EyeOff } from "lucide-react-native";
 
-import { usePalette } from "@/hooks/use-palette";
+import { Button } from "@/components/ui/button";
+import { Icon } from "@/components/ui/icon";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Text } from "@/components/ui/text";
 import { messages } from "@/lib/messages";
+import { cn } from "@/lib/utils";
 
 type Props = Omit<TextInputProps, "secureTextEntry"> & {
   label: string;
@@ -13,52 +18,36 @@ type Props = Omit<TextInputProps, "secureTextEntry"> & {
   ref?: Ref<TextInputInstance>;
 };
 
-export function TextField({ label, error, password, ref, ...input }: Props) {
-  const colors = usePalette();
-  const [focused, setFocused] = useState(false);
+/** Labelled input with an error message, built from React Native Reusables' Label and Input. */
+export function TextField({ label, error, password, ref, className, ...input }: Props) {
   const [visible, setVisible] = useState(false);
-
-  const border = error ? "border-destructive" : focused ? "border-ring" : "border-input";
 
   return (
     <View className="gap-2">
-      <Text className={`font-sans-medium text-sm ${error ? "text-destructive" : "text-foreground"}`}>{label}</Text>
-      <View className={`h-11 flex-row items-center rounded-lg border bg-transparent dark:bg-input/30 ${border}`}>
-        <TextInput
+      <Label className={cn(error && "text-destructive")}>{label}</Label>
+      <View className="flex-row items-center">
+        <Input
           {...input}
           ref={ref}
           accessibilityLabel={label}
+          aria-invalid={!!error}
           secureTextEntry={password && !visible}
-          placeholderTextColor={colors["muted-foreground"]}
-          cursorColor={colors.primary}
-          selectionColor={colors.ring}
-          onFocus={(e) => {
-            setFocused(true);
-            input.onFocus?.(e);
-          }}
-          onBlur={(e) => {
-            setFocused(false);
-            input.onBlur?.(e);
-          }}
-          className="h-full flex-1 px-3 font-sans text-base text-foreground"
+          className={cn("h-11 font-sans", password && "pr-11", error && "border-destructive", className)}
         />
         {password && (
-          <Pressable
+          <Button
+            variant="ghost"
+            size="icon"
             onPress={() => setVisible((v) => !v)}
             hitSlop={8}
-            accessibilityRole="button"
             accessibilityLabel={visible ? messages.Auth.hidePassword : messages.Auth.showPassword}
-            className="h-full items-center justify-center px-3"
+            className="absolute right-0.5"
           >
-            {visible ? (
-              <EyeOff size={18} color={colors["muted-foreground"]} />
-            ) : (
-              <Eye size={18} color={colors["muted-foreground"]} />
-            )}
-          </Pressable>
+            <Icon as={visible ? EyeOff : Eye} size={18} className="text-muted-foreground" />
+          </Button>
         )}
       </View>
-      {error && <Text className="font-sans text-sm text-destructive">{error}</Text>}
+      {error && <Text className="text-sm text-destructive">{error}</Text>}
     </View>
   );
 }

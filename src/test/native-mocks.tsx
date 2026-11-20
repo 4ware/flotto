@@ -8,9 +8,11 @@ import { mock } from "bun:test";
 type Props = Record<string, any> & { children?: ReactNode; ref?: Ref<unknown> };
 
 // ---- lucide-react-native: every icon renders a host "Icon" carrying its name.
+// Add an icon here when the app (or a component in src/components/ui) starts using it.
 
 const ICON_NAMES = [
-  "ArrowDown", "Bell", "Building2", "CalendarDays", "ChevronLeft", "ChevronRight", "CircleCheck", "Clock",
+  "ArrowDown", "Bell", "Building2", "CalendarDays", "Check", "ChevronDown", "ChevronLeft", "ChevronRight",
+  "ChevronUp", "CircleCheck", "Clock",
   "Eye", "EyeOff", "Flag", "House", "ListChecks", "LogOut", "MapPin", "Moon", "Navigation", "Play", "Route",
   "Sun", "Truck", "User",
 ] as const;
@@ -39,13 +41,42 @@ export const setSearchParams = (params: Record<string, string>) => {
   searchParams = params;
 };
 
+const navTheme = (dark: boolean) => ({
+  dark,
+  colors: { primary: "", background: "", card: "", text: "", border: "", notification: "" },
+  fonts: {},
+});
+
 export const expoRouter = {
   router,
+  DefaultTheme: navTheme(false),
+  DarkTheme: navTheme(true),
   useLocalSearchParams: () => searchParams,
   // Runs like an effect on mount; enough for screens that react to gaining focus once.
   useFocusEffect: (effect: () => void | (() => void)) => useEffect(effect, [effect]),
   Link: ({ children, ...props }: Props) => createElement("View", props, children),
 };
+
+// ---- react-native-reanimated: no animations in tests; animated views are plain host views.
+
+type Animation = { [key: string]: (...args: unknown[]) => Animation };
+const animation: Animation = new Proxy({} as Animation, { get: () => () => animation });
+const AnimatedView = ({ children, entering: _entering, exiting: _exiting, layout: _layout, ...props }: Props) =>
+  createElement("View", props, children);
+export const reanimated = {
+  default: {
+    View: AnimatedView,
+    createAnimatedComponent: (Component: (props: Props) => ReactNode) => ({ entering, exiting, layout, ...props }: Props) =>
+      createElement(Component, props),
+  },
+  FadeIn: animation,
+  FadeOut: animation,
+  ReduceMotion: { System: "system", Always: "always", Never: "never" },
+};
+
+// ---- react-native-screens: FullWindowOverlay (iOS dialogs) just renders its children.
+
+export const screens = { FullWindowOverlay: ({ children }: Props) => children };
 
 // ---- react-native-safe-area-context
 
@@ -66,6 +97,8 @@ const setScheme = (value: Scheme | "system") => {
 };
 
 export const nativewind = {
+  // Icon (src/components/ui/icon.tsx) maps className to props on device; tests read className directly.
+  cssInterop: () => {},
   colorScheme: { set: mock(setScheme), get: () => scheme },
   useColorScheme: () => {
     const colorScheme = useSyncExternalStore(

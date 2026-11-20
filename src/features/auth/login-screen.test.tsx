@@ -20,7 +20,7 @@ async function fillIn(email: string, password: string) {
 describe("LoginScreen", () => {
   test("shows the form", async () => {
     await renderWithProviders(<LoginScreen />);
-    expect(screen.getByRole("header", { name: t.title })).toBeOnTheScreen();
+    expect(screen.getByRole("heading", { name: t.title })).toBeOnTheScreen();
     expect(screen.getByLabelText("E-Mail-Adresse")).toBeOnTheScreen();
     expect(screen.getByLabelText("Passwort")).toBeOnTheScreen();
   });

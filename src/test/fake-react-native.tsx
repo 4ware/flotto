@@ -181,6 +181,15 @@ export const Appearance = {
 export const useColorScheme = () => "light" as const;
 export const useWindowDimensions = () => Dimensions.get();
 
+// Used by @rn-primitives (React Native Reusables' menus and dialogs).
+export const BackHandler = { addEventListener: () => ({ remove: () => {} }), exitApp: () => {} };
+export const AccessibilityInfo = {
+  isScreenReaderEnabled: async () => false,
+  addEventListener: () => ({ remove: () => {} }),
+  setAccessibilityFocus: () => {},
+};
+export const findNodeHandle = () => null;
+
 export const Keyboard = { dismiss: () => {}, addListener: () => ({ remove: () => {} }) };
 export const Alert = { alert: mock(() => {}) };
 

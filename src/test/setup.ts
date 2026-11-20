@@ -52,6 +52,8 @@ mock.module("expo-constants", () => ({ default: native.constants }));
 mock.module("expo-web-browser", () => native.webBrowser);
 mock.module("expo-network", () => native.network);
 mock.module("react-native-maps", () => native.maps);
+mock.module("react-native-reanimated", () => native.reanimated);
+mock.module("react-native-screens", () => native.screens);
 // The real module installs expo-sqlite's polyfill; the in-memory storage above replaces it.
 mock.module("expo-sqlite/localStorage/install", () => ({}));
 

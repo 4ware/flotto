@@ -1,8 +1,18 @@
-import { Modal, Text, View } from "react-native";
+import { View } from "react-native";
 import { Flag } from "lucide-react-native";
 
-import { Button } from "@/components/ui/button";
-import { usePalette } from "@/hooks/use-palette";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Icon } from "@/components/ui/icon";
+import { Text } from "@/components/ui/text";
 
 type Props = {
   visible: boolean;
@@ -15,25 +25,28 @@ type Props = {
 
 /** Asks whether the destination was reached; shown when the vehicle enters the geofence. */
 export function ArrivalModal({ visible, destinationLabel, pending, error, onConfirm, onDismiss }: Props) {
-  const colors = usePalette();
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onDismiss} statusBarTranslucent>
-      <View className="flex-1 items-center justify-center bg-black/50 px-6">
-        <View className="w-full max-w-sm gap-4 rounded-2xl bg-card p-6">
-          <View className="size-12 items-center justify-center self-center rounded-full bg-secondary">
-            <Flag size={22} color={colors.primary} />
+    // Closing any other way (back button, tapping outside) counts as "not yet".
+    <AlertDialog open={visible} onOpenChange={(open) => !open && !pending && onDismiss()}>
+      <AlertDialogContent className="max-w-sm">
+        <AlertDialogHeader className="items-center">
+          <View className="size-12 items-center justify-center rounded-full bg-secondary">
+            <Icon as={Flag} size={22} className="text-primary" />
           </View>
-          <View className="gap-1">
-            <Text className="text-center font-heading text-lg text-foreground">Ziel erreicht?</Text>
-            <Text className="text-center font-sans text-sm text-muted-foreground">{destinationLabel}</Text>
-          </View>
-          {error && <Text className="text-center font-sans text-sm text-destructive">{error}</Text>}
-          <View className="gap-2">
-            <Button label={pending ? "Wird abgeschlossen …" : "Ja, Tour abschließen"} onPress={pending ? undefined : onConfirm} />
-            <Button label="Noch nicht" variant="outline" onPress={pending ? undefined : onDismiss} />
-          </View>
-        </View>
-      </View>
-    </Modal>
+          <AlertDialogTitle className="text-center">Ziel erreicht?</AlertDialogTitle>
+          <AlertDialogDescription className="text-center">{destinationLabel}</AlertDialogDescription>
+        </AlertDialogHeader>
+        {error && <Text className="text-center text-sm text-destructive">{error}</Text>}
+        <AlertDialogFooter>
+          {/* The primitives close the dialog themselves; the screen decides with `visible`. */}
+          <AlertDialogCancel onPress={onDismiss} disabled={pending}>
+            <Text>Noch nicht</Text>
+          </AlertDialogCancel>
+          <AlertDialogAction onPress={onConfirm} disabled={pending}>
+            <Text>{pending ? "Wird abgeschlossen …" : "Ja, Tour abschließen"}</Text>
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

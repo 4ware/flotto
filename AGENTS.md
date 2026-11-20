@@ -24,6 +24,15 @@ npx expo install --fix      # fix incompatible package versions
 
 Run lint, typecheck and `bun test` before declaring any task done.
 
+## UI components
+
+Build UI from [React Native Reusables](https://reactnativereusables.com) (shadcn/ui for React Native, NativeWind). Its components live as source in `src/components/ui/` and are ours to adapt.
+
+- Add one with `bunx @react-native-reusables/cli@latest add <name> --styling-library nativewind` (config in `components.json`), then adapt it: our fonts are one family per weight, so use `font-sans-medium` / `font-sans-semibold` / `font-heading` instead of `font-medium` / `font-semibold` (React Native can't pick a weight of a custom font). Check the setup with `... doctor`.
+- Use `Text` from `@/components/ui/text` (not `react-native`), `Button` with `Text`/`Icon` children, and `Icon` (`<Icon as={Truck} className="text-primary" />`) for lucide icons instead of passing palette colors.
+- Merge classes with `cn()` from `@/lib/utils`. Colors are the tokens in `src/global.css` / `tailwind.config.js`; `src/lib/theme.ts` has them as values (`THEME`, `NAV_THEME`) for props that can't take a className.
+- Menus and dialogs render into the `PortalHost` in `src/app/_layout.tsx`; in tests use `renderWithProviders`, which has one.
+
 ## Testing
 
 Unit tests run with `bun test` and React Native Testing Library (RNTL). Every module gets a test next to it (`button.tsx` → `button.test.tsx`).

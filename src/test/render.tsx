@@ -2,6 +2,7 @@
 // Bun binds CommonJS named exports once at import, but RNTL replaces `screen` on every render.
 import type { ReactElement, ReactNode } from "react";
 import { notifyManager, QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { PortalHost } from "@rn-primitives/portal";
 import { render, renderHook, screen as staleScreen } from "@testing-library/react-native";
 import { mock } from "bun:test";
 
@@ -30,13 +31,17 @@ function providers(queryClient: QueryClient) {
   return function TestProviders({ children }: { children: ReactNode }) {
     return (
       <QueryClientProvider client={queryClient}>
-        <AppStateProvider>{children}</AppStateProvider>
+        <AppStateProvider>
+          {children}
+          {/* Like the root layout: menus and dialogs render here. */}
+          <PortalHost />
+        </AppStateProvider>
       </QueryClientProvider>
     );
   };
 }
 
-/** Renders inside the app's providers (TanStack Query, app state). */
+/** Renders inside the app's providers (TanStack Query, app state, portal host for menus and dialogs). */
 export async function renderWithProviders(ui: ReactElement, { queryClient = createTestQueryClient() } = {}) {
   const result = await render(ui, { wrapper: providers(queryClient) });
   return { ...result, queryClient };

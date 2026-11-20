@@ -1,10 +1,13 @@
 import { useRef, useState } from "react";
-import { ActivityIndicator, KeyboardAvoidingView, Pressable, ScrollView, Text, View, type TextInputInstance } from "react-native";
+import { ActivityIndicator, KeyboardAvoidingView, ScrollView, View, type TextInputInstance } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as WebBrowser from "expo-web-browser";
 
 import { BrandMark } from "@/components/brand-mark";
 import { ModeToggle } from "@/components/mode-toggle";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Text } from "@/components/ui/text";
 import { TextField } from "@/components/ui/text-field";
 import { usePalette } from "@/hooks/use-palette";
 import { useLogin } from "@/lib/api/auth";
@@ -58,18 +61,16 @@ export function LoginScreen() {
       >
         <BrandMark />
 
-        <View className="w-full max-w-md gap-6 rounded-2xl border border-border bg-card py-6">
-          <View className="gap-1 px-6">
-            <Text accessibilityRole="header" className="font-heading text-2xl tracking-tight text-card-foreground">
-              {t.title}
-            </Text>
-            <Text className="font-sans text-sm text-muted-foreground">{t.description}</Text>
-          </View>
+        <Card className="w-full max-w-md rounded-2xl">
+          <CardHeader className="gap-1">
+            <CardTitle className="text-2xl tracking-tight">{t.title}</CardTitle>
+            <CardDescription>{t.description}</CardDescription>
+          </CardHeader>
 
-          <View className="gap-4 px-6">
+          <CardContent className="gap-4">
             {login.error && (
               <View accessibilityRole="alert" className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2.5">
-                <Text className="font-sans text-sm text-destructive">{login.error.message}</Text>
+                <Text className="text-sm text-destructive">{login.error.message}</Text>
               </View>
             )}
 
@@ -102,34 +103,41 @@ export function LoginScreen() {
                 returnKeyType="go"
                 onSubmitEditing={submit}
               />
-              <Pressable
+              <Button
+                variant="link"
+                size="sm"
+                role="link"
                 onPress={() => WebBrowser.openBrowserAsync(`${API_URL}/forgot-password`)}
-                accessibilityRole="link"
-                className="self-end py-1"
+                className="self-end px-0"
               >
-                <Text className="font-sans-medium text-sm text-primary">{t.forgotPassword}</Text>
-              </Pressable>
+                <Text>{t.forgotPassword}</Text>
+              </Button>
             </View>
 
-            <Pressable
+            <Button
+              size="lg"
               onPress={submit}
               disabled={login.isPending}
-              accessibilityRole="button"
               accessibilityState={{ busy: login.isPending, disabled: login.isPending }}
-              className="h-11 flex-row items-center justify-center gap-2 rounded-lg bg-primary active:opacity-80 disabled:opacity-50"
             >
               {login.isPending && <ActivityIndicator size="small" color={colors["primary-foreground"]} />}
-              <Text className="font-sans-semibold text-sm text-primary-foreground">{t.submit}</Text>
-            </Pressable>
-          </View>
+              <Text>{t.submit}</Text>
+            </Button>
+          </CardContent>
 
-          <View className="flex-row flex-wrap justify-center gap-1 border-t border-border px-6 pt-5">
-            <Text className="font-sans text-sm text-muted-foreground">{t.footerText}</Text>
-            <Pressable onPress={() => WebBrowser.openBrowserAsync(`${API_URL}/signup`)} accessibilityRole="link">
-              <Text className="font-sans-medium text-sm text-primary">{t.footerLink}</Text>
-            </Pressable>
-          </View>
-        </View>
+          <CardFooter className="flex-wrap justify-center gap-1 border-t border-border pt-5">
+            <Text className="text-sm text-muted-foreground">{t.footerText}</Text>
+            <Button
+              variant="link"
+              size="sm"
+              role="link"
+              onPress={() => WebBrowser.openBrowserAsync(`${API_URL}/signup`)}
+              className="h-auto px-0"
+            >
+              <Text>{t.footerLink}</Text>
+            </Button>
+          </CardFooter>
+        </Card>
       </ScrollView>
     </KeyboardAvoidingView>
   );

@@ -1,10 +1,12 @@
+const { hairlineWidth } = require("nativewind/theme");
+
 const token = (name) => `rgb(var(--${name}) / <alpha-value>)`;
 
 const tokens = [
-  "background", "foreground", "card", "card-foreground",
+  "background", "foreground", "card", "card-foreground", "popover", "popover-foreground",
   "primary", "primary-foreground", "secondary", "secondary-foreground",
   "muted", "muted-foreground", "accent", "accent-foreground",
-  "destructive", "border", "input", "ring", "subtle-foreground",
+  "destructive", "destructive-foreground", "border", "input", "ring", "subtle-foreground",
   "brand", "online", "warning", "warning-soft", "warning-foreground",
   "deep", "deep-foreground", "deep-muted", "deep-accent",
 ];
@@ -18,6 +20,13 @@ module.exports = {
   theme: {
     extend: {
       colors: Object.fromEntries(tokens.map((t) => [t, token(t)])),
+      // React Native Reusables components (src/components/ui) size their corners from --radius.
+      borderRadius: {
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
+      },
+      borderWidth: { hairline: hairlineWidth() },
       // React Native needs one font family per weight.
       fontFamily: {
         sans: ["DMSans_400Regular"],
@@ -29,5 +38,6 @@ module.exports = {
       },
     },
   },
-  plugins: [],
+  future: { hoverOnlyWhenSupported: true },
+  plugins: [require("tailwindcss-animate")],
 };

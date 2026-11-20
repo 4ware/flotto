@@ -1,9 +1,11 @@
-import { ActivityIndicator, FlatList, RefreshControl, Text, View } from "react-native";
+import { ActivityIndicator, FlatList, RefreshControl, View } from "react-native";
 import { router } from "expo-router";
 import { Bell, Truck } from "lucide-react-native";
 
 import { HeaderIcon, ScreenHeader } from "@/components/screen-header";
 import { Button } from "@/components/ui/button";
+import { Icon } from "@/components/ui/icon";
+import { Text } from "@/components/ui/text";
 import { TourCard } from "@/features/tours/tour-card";
 import { usePalette } from "@/hooks/use-palette";
 import { useCurrentUser } from "@/lib/api/auth";
@@ -59,7 +61,7 @@ export function TodayScreen() {
             title={vehicle?.licensePlate ?? "Ihre Touren"}
             right={
               <HeaderIcon>
-                <Bell size={16} color={colors["primary-foreground"]} />
+                <Icon as={Bell} size={16} className="text-primary-foreground" />
               </HeaderIcon>
             }
           >
@@ -74,14 +76,19 @@ export function TodayScreen() {
               <Text className="text-center font-sans text-sm text-muted-foreground">
                 Wählen Sie ein Fahrzeug, um Ihre heutigen Touren zu sehen.
               </Text>
-              <Button label="Fahrzeug wählen" icon={Truck} onPress={() => router.navigate("/fahrzeug")} />
+              <Button onPress={() => router.navigate("/fahrzeug")}>
+                <Icon as={Truck} size={18} />
+                <Text>Fahrzeug wählen</Text>
+              </Button>
             </>
           ) : tours.isPending ? (
             <ActivityIndicator color={colors.primary} accessibilityLabel={messages.Common.loading} />
           ) : tours.isError ? (
             <>
               <Text className="text-center font-sans text-sm text-destructive">{tours.error.message}</Text>
-              <Button label="Erneut versuchen" variant="outline" onPress={() => void tours.refetch()} />
+              <Button variant="outline" onPress={() => void tours.refetch()}>
+                <Text>Erneut versuchen</Text>
+              </Button>
             </>
           ) : (
             <Text className="text-center font-sans text-sm text-muted-foreground">

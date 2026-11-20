@@ -1,29 +1,29 @@
-import type { ComponentType } from "react";
-import { ActivityIndicator, RefreshControl, ScrollView, Text, View } from "react-native";
+import { ActivityIndicator, RefreshControl, ScrollView, View } from "react-native";
 import { router } from "expo-router";
-import { Building2, CalendarDays, Clock, Flag, MapPin, Navigation, Play, Truck, type LucideProps } from "lucide-react-native";
+import { Building2, CalendarDays, Clock, Flag, MapPin, Navigation, Play, Truck, type LucideIcon } from "lucide-react-native";
 
 import { ScreenHeader } from "@/components/screen-header";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Eyebrow } from "@/components/ui/eyebrow";
-import { dayKey, dayLabel, formatTime, statusTone } from "@/features/tours/tour-card";
+import { Icon } from "@/components/ui/icon";
+import { Text } from "@/components/ui/text";
+import { dayKey, dayLabel, formatTime } from "@/features/tours/tour-card";
+import { TourStatusBadge } from "@/features/tours/tour-status-badge";
 import { usePalette } from "@/hooks/use-palette";
 import { ApiError } from "@/lib/api/client";
 import { useSetTourStatus, useTour } from "@/lib/api/tours";
 import { messages } from "@/lib/messages";
 
-function Row({ icon: Icon, label, value }: { icon: ComponentType<LucideProps>; label: string; value: string }) {
-  const colors = usePalette();
+function Row({ icon, label, value }: { icon: LucideIcon; label: string; value: string }) {
   return (
     <View className="flex-row items-start gap-3">
       <View className="size-9 items-center justify-center rounded-lg bg-secondary">
-        <Icon size={16} color={colors.primary} />
+        <Icon as={icon} size={16} className="text-primary" />
       </View>
       <View className="flex-1 gap-0.5">
-        <Text className="font-sans text-xs text-subtle-foreground">{label}</Text>
-        <Text className="font-sans-medium text-sm text-foreground">{value}</Text>
+        <Text className="text-xs text-subtle-foreground">{label}</Text>
+        <Text className="font-sans-medium text-sm">{value}</Text>
       </View>
     </View>
   );
@@ -38,10 +38,7 @@ export function TourScreen({ id }: { id: string }) {
   const setStatus = useSetTourStatus();
 
   const openRoute = () => router.push({ pathname: "/on-route/[id]", params: { id } });
-  const start = () => {
-    if (setStatus.isPending) return;
-    setStatus.mutate({ id, status: "started" }, { onSuccess: openRoute });
-  };
+  const start = () => setStatus.mutate({ id, status: "started" }, { onSuccess: openRoute });
   const startDay = data ? dayKey(new Date(data.startsAt)) : "";
   const endDay = data ? dayKey(new Date(data.endsAt)) : "";
 
@@ -64,7 +61,7 @@ export function TourScreen({ id }: { id: string }) {
         onBack={back}
       >
         {data && (
-          <Text className="mt-1 font-sans text-xs text-primary-foreground/75">
+          <Text className="mt-1 text-xs text-primary-foreground/75">
             {dayLabel(startDay)} · {data.licensePlate}
           </Text>
         )}
@@ -72,16 +69,16 @@ export function TourScreen({ id }: { id: string }) {
 
       {data ? (
         <View className="gap-3 px-4 pt-5">
-          <Badge label={messages.Tours.statuses[data.status]} tone={statusTone[data.status]} />
+          <TourStatusBadge status={data.status} />
 
           <Eyebrow className="pt-2">Route</Eyebrow>
-          <Card className="gap-4">
+          <Card className="gap-4 p-4">
             <Row icon={MapPin} label="Start" value={data.startAddress} />
             <Row icon={Flag} label="Ziel" value={data.destinationAddress} />
           </Card>
 
           <Eyebrow className="pt-2">Zeit</Eyebrow>
-          <Card className="gap-4">
+          <Card className="gap-4 p-4">
             <Row icon={CalendarDays} label="Datum" value={dayLabel(startDay)} />
             <Row icon={Clock} label="Beginn" value={`${formatTime(data.startsAt)} Uhr`} />
             {/* Tours can run past midnight: then the end names its own day. */}
@@ -93,19 +90,25 @@ export function TourScreen({ id }: { id: string }) {
           </Card>
 
           <Eyebrow className="pt-2">Auftrag</Eyebrow>
-          <Card className="gap-4">
+          <Card className="gap-4 p-4">
             <Row icon={Building2} label="Kunde" value={data.customerName} />
             <Row icon={Truck} label="Fahrzeug" value={data.licensePlate} />
           </Card>
 
           <View className="gap-2 pt-3">
             {data.status === "pending" && (
-              <Button label={setStatus.isPending ? "Wird gestartet …" : "Tour starten"} icon={Play} onPress={start} />
+              <Button size="lg" onPress={start} disabled={setStatus.isPending}>
+                <Icon as={Play} size={18} />
+                <Text>{setStatus.isPending ? "Wird gestartet …" : "Tour starten"}</Text>
+              </Button>
             )}
-            {data.status === "started" && <Button label="Unterwegs-Ansicht öffnen" icon={Navigation} onPress={openRoute} />}
-            {setStatus.error && (
-              <Text className="text-center font-sans text-sm text-destructive">{setStatus.error.message}</Text>
+            {data.status === "started" && (
+              <Button size="lg" onPress={openRoute}>
+                <Icon as={Navigation} size={18} />
+                <Text>Unterwegs-Ansicht öffnen</Text>
+              </Button>
             )}
+            {setStatus.error && <Text className="text-center text-sm text-destructive">{setStatus.error.message}</Text>}
           </View>
         </View>
       ) : (
@@ -114,11 +117,15 @@ export function TourScreen({ id }: { id: string }) {
             <ActivityIndicator color={colors.primary} accessibilityLabel={messages.Common.loading} />
           ) : (
             <>
-              <Text className="text-center font-sans text-sm text-destructive">{tour.error?.message}</Text>
+              <Text className="text-center text-sm text-destructive">{tour.error?.message}</Text>
               {tour.error instanceof ApiError && tour.error.status === 404 ? (
-                <Button label="Zur Tourenliste" variant="outline" onPress={back} />
+                <Button variant="outline" onPress={back}>
+                  <Text>Zur Tourenliste</Text>
+                </Button>
               ) : (
-                <Button label="Erneut versuchen" variant="outline" onPress={() => void tour.refetch()} />
+                <Button variant="outline" onPress={() => void tour.refetch()}>
+                  <Text>Erneut versuchen</Text>
+                </Button>
               )}
             </>
           )}

@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from "react";
-import { Platform, Text, View } from "react-native";
+import { Platform, View } from "react-native";
 import { isRunningInExpoGo } from "expo";
 import Constants from "expo-constants";
 import MapView, { Marker } from "react-native-maps";
 import { Truck } from "lucide-react-native";
 
-import { usePalette } from "@/hooks/use-palette";
+import { Icon } from "@/components/ui/icon";
+import { Text } from "@/components/ui/text";
+
 import type { Position } from "@/lib/api/vehicles";
 import { useResolvedColorScheme } from "@/theme/color-scheme";
 
@@ -17,7 +19,6 @@ const FOLLOW_ZOOM = 16;
 
 /** Custom marker views are snapshotted; give the SVG icon a moment to draw before freezing it. */
 function TruckMarker({ position }: { position: Position }) {
-  const colors = usePalette();
   const [tracksViewChanges, setTracksViewChanges] = useState(true);
   useEffect(() => {
     const timer = setTimeout(() => setTracksViewChanges(false), 500);
@@ -26,11 +27,8 @@ function TruckMarker({ position }: { position: Position }) {
 
   return (
     <Marker coordinate={position} title="Ihr Fahrzeug" anchor={{ x: 0.5, y: 0.5 }} tracksViewChanges={tracksViewChanges}>
-      <View
-        className="size-10 items-center justify-center rounded-full border-2 bg-primary"
-        style={{ borderColor: colors["primary-foreground"] }}
-      >
-        <Truck size={20} color={colors["primary-foreground"]} />
+      <View className="size-10 items-center justify-center rounded-full border-2 border-primary-foreground bg-primary">
+        <Icon as={Truck} size={20} className="text-primary-foreground" />
       </View>
     </Marker>
   );

@@ -1,43 +1,44 @@
-import type { ComponentType } from "react";
-import { ActivityIndicator, Pressable, ScrollView, Text, View } from "react-native";
-import { Bell, CalendarDays, ChevronRight, LogOut, type LucideProps } from "lucide-react-native";
+import { ActivityIndicator, ScrollView, View } from "react-native";
+import { Bell, CalendarDays, ChevronRight, LogOut, type LucideIcon } from "lucide-react-native";
 
 import { BrandMark } from "@/components/brand-mark";
 import { ScreenHeader } from "@/components/screen-header";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Icon } from "@/components/ui/icon";
+import { Separator } from "@/components/ui/separator";
+import { Text } from "@/components/ui/text";
 import { usePalette } from "@/hooks/use-palette";
 import { useCurrentUser, useLogout } from "@/lib/api/auth";
 import { messages } from "@/lib/messages";
 
 function Row({
-  icon: Icon,
+  icon,
   label,
   onPress,
   busy,
-  last,
 }: {
-  icon: ComponentType<LucideProps>;
+  icon: LucideIcon;
   label: string;
   onPress?: () => void;
   busy?: boolean;
-  last?: boolean;
 }) {
   const colors = usePalette();
   return (
-    <Pressable
+    <Button
+      variant="ghost"
       onPress={onPress}
       disabled={busy}
-      accessibilityRole="button"
-      className={`flex-row items-center gap-3 py-3.5 active:opacity-70 ${last ? "" : "border-b border-border"}`}
+      className="h-auto justify-start gap-3 rounded-none px-0 py-3.5"
     >
-      <Icon size={18} color={colors["muted-foreground"]} />
-      <Text className="flex-1 font-sans-medium text-sm text-foreground">{label}</Text>
+      <Icon as={icon} size={18} className="text-muted-foreground" />
+      <Text className="flex-1 font-sans-medium text-foreground">{label}</Text>
       {busy ? (
         <ActivityIndicator size="small" color={colors["subtle-foreground"]} />
       ) : (
-        <ChevronRight size={16} color={colors["subtle-foreground"]} />
+        <Icon as={ChevronRight} size={16} className="text-subtle-foreground" />
       )}
-    </Pressable>
+    </Button>
   );
 }
 
@@ -63,16 +64,12 @@ export function ProfileScreen() {
       </ScreenHeader>
 
       <View className="gap-6 px-4 pt-4">
-        <Card className="py-0">
+        <Card className="gap-0 px-4 py-0">
           <Row icon={CalendarDays} label="Meine Schichten" />
+          <Separator />
           <Row icon={Bell} label="Benachrichtigungen" />
-          <Row
-            icon={LogOut}
-            label={messages.Common.logout}
-            onPress={() => logout.mutate()}
-            busy={logout.isPending}
-            last
-          />
+          <Separator />
+          <Row icon={LogOut} label={messages.Common.logout} onPress={() => logout.mutate()} busy={logout.isPending} />
         </Card>
         <View className="items-center gap-2">
           <BrandMark />
