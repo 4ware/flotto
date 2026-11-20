@@ -28,6 +28,15 @@ describe("ScreenHeader", () => {
     expect(screen.getByRole("button", { name: "Farbschema wählen" })).toBeOnTheScreen();
   });
 
+  test("shows the light logo, with the overline under the title", async () => {
+    await render(<ScreenHeader overline="Guten Tag, Kai" title="WL-FD 509" />);
+
+    const logo = screen.getByRole("image", { name: "flot.to" });
+    expect(logo.queryAll((node) => node.type === "Icon")[0].props.className).toContain("text-primary");
+    const texts = screen.getAllByText(/^(WL-FD 509|Guten Tag, Kai)$/);
+    expect(texts.map((t) => t.children[0])).toEqual(["WL-FD 509", "Guten Tag, Kai"]);
+  });
+
   test("has no back button by default", async () => {
     await render(<ScreenHeader overline="Tour" title="16:35 – 17:00" />);
     expect(screen.queryByRole("button", { name: "Zurück" })).not.toBeOnTheScreen();

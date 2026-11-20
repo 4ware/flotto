@@ -3,7 +3,7 @@ import { ActivityIndicator, KeyboardAvoidingView, ScrollView, View, type TextInp
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as WebBrowser from "expo-web-browser";
 
-import { BrandMark } from "@/components/brand-mark";
+import { Logo } from "@/components/logo";
 import { ModeToggle } from "@/components/mode-toggle";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -59,7 +59,7 @@ export function LoginScreen() {
         contentContainerClassName="grow items-center justify-center gap-6 px-4"
         contentContainerStyle={{ paddingTop: insets.top + 64, paddingBottom: insets.bottom + 40 }}
       >
-        <BrandMark />
+        <Logo size="lg" />
 
         <Card className="w-full max-w-md rounded-2xl">
           <CardHeader className="gap-1">
