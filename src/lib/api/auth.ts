@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { stopTracking } from "@/features/on-route/background/tracking";
@@ -54,8 +55,13 @@ export function useLogout() {
 /** The signed-in user. Only use inside the protected screens, where a session is guaranteed. */
 export function useCurrentUser() {
   const { data } = useSession();
-  if (!data) throw new Error("useCurrentUser() used outside the signed-in area");
-  const { user, organization } = data;
+  // On sign-out a screen can render once more before the root layout removes it:
+  // keep showing the last user then instead of crashing.
+  const [last, setLast] = useState(data);
+  if (data && data !== last) setLast(data);
+  const current = data ?? last;
+  if (!current) throw new Error("useCurrentUser() used outside the signed-in area");
+  const { user, organization } = current;
   const parts = user.name.trim().split(/\s+/);
   return {
     ...user,

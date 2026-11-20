@@ -1,0 +1,4 @@
+[test]
+# Stand-ins for react-native and native modules; see src/test/setup.ts.
+preload = ["./src/test/setup.ts"]
+root = "./src"

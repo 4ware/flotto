@@ -40,17 +40,15 @@ function TruckMarker({ position }: { position: Position }) {
  * Android builds need our own Google Maps key (app.config.ts); without it the native map crashes.
  * Expo Go ships with a key of its own.
  */
-const mapsAvailable =
-  Platform.OS !== "android" ||
-  isRunningInExpoGo() ||
-  Constants.expoConfig?.extra?.hasAndroidMapsKey === true;
+const mapsAvailable = () =>
+  Platform.OS !== "android" || isRunningInExpoGo() || Constants.expoConfig?.extra?.hasAndroidMapsKey === true;
 
 /**
  * Fills its parent. Until the vehicle moves, it shows the vehicle and the destination together;
  * once it moves, it zooms in on the vehicle and follows it.
  */
 export function RouteMap(props: RouteMapProps) {
-  if (!mapsAvailable) return <MissingMapsKey {...props} />;
+  if (!mapsAvailable()) return <MissingMapsKey {...props} />;
   return <GoogleRouteMap {...props} />;
 }
 
