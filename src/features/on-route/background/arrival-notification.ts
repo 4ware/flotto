@@ -9,14 +9,15 @@ export const ARRIVAL_NOTIFICATION = "arrival";
 
 // The arrival notification is only sent while the app is in the background;
 // in the foreground the on-route screen asks with a modal instead.
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowBanner: true,
-    shouldShowList: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-  }),
+/** How notifications show while the app is open. */
+export const showNotification = async () => ({
+  shouldShowBanner: true,
+  shouldShowList: true,
+  shouldPlaySound: true,
+  shouldSetBadge: false,
 });
+
+Notifications.setNotificationHandler({ handleNotification: showNotification });
 
 /**
  * Android 13+ only shows the permission prompt once a channel exists.

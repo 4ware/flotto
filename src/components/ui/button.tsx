@@ -17,6 +17,7 @@ export function Button({ label, icon: Icon, variant = "primary", onPress }: Prop
   return (
     <Pressable
       onPress={onPress}
+      accessibilityRole="button"
       className={`h-12 flex-row items-center justify-center gap-2 rounded-lg px-5 active:opacity-80 ${
         primary ? "bg-primary" : "border border-border bg-background"
       }`}

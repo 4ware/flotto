@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 
 import { apiFetch } from "@/lib/api/client";
 
@@ -26,19 +26,3 @@ export function useVehicles() {
 }
 
 export type Position = { latitude: number; longitude: number };
-
-/** PATCH /api/vehicles/:id/position (open to drivers); keeps the cached vehicle list in step. */
-export function useReportPosition() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({ vehicleId, position }: { vehicleId: string; position: Position }) =>
-      apiFetch<{ moved: boolean }>(`/api/vehicles/${encodeURIComponent(vehicleId)}/position`, {
-        method: "PATCH",
-        body: position,
-      }),
-    onSuccess: (_, { vehicleId, position }) =>
-      queryClient.setQueryData<VehiclesResponse>(vehiclesQueryKey, (data) =>
-        data && { ...data, vehicles: data.vehicles.map((v) => (v.id === vehicleId ? { ...v, ...position } : v)) },
-      ),
-  });
-}
