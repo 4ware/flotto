@@ -1,18 +1,95 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { useColorScheme } from 'react-native';
+import "../global.css";
+// localStorage for src/state/app-state.tsx (expo-sqlite on native, the browser's own on web).
+import "@/state/install-local-storage";
 
-import { AnimatedSplashOverlay } from '@/components/animated-icon';
-import AppTabs from '@/components/app-tabs';
+import { useEffect, useState } from "react";
+import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
+import { StatusBar } from "expo-status-bar";
+import { useFonts } from "expo-font";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { Manrope_700Bold, Manrope_800ExtraBold } from "@expo-google-fonts/manrope";
+import {
+  DMSans_400Regular,
+  DMSans_500Medium,
+  DMSans_600SemiBold,
+  DMSans_700Bold,
+} from "@expo-google-fonts/dm-sans";
+
+import { useSession } from "@/lib/api/auth";
+import { queryClient } from "@/lib/query-client";
+import { AppStateProvider } from "@/state/app-state";
+import { loadColorSchemePreference, useResolvedColorScheme } from "@/theme/color-scheme";
+import { palette } from "@/theme/palette";
 
 SplashScreen.preventAutoHideAsync();
+const schemeLoaded = loadColorSchemePreference();
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
+export default function RootLayout() {
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <AnimatedSplashOverlay />
-      <AppTabs />
+    <QueryClientProvider client={queryClient}>
+      <AppStateProvider>
+        <RootNavigator />
+      </AppStateProvider>
+    </QueryClientProvider>
+  );
+}
+
+function RootNavigator() {
+  const scheme = useResolvedColorScheme();
+  const colors = palette[scheme];
+  const session = useSession();
+  const [schemeReady, setSchemeReady] = useState(false);
+  const [fontsLoaded, fontError] = useFonts({
+    Manrope_700Bold,
+    Manrope_800ExtraBold,
+    DMSans_400Regular,
+    DMSans_500Medium,
+    DMSans_600SemiBold,
+    DMSans_700Bold,
+  });
+
+  useEffect(() => {
+    schemeLoaded.then(() => setSchemeReady(true));
+  }, []);
+
+  // Keep the splash screen up until we know whether someone is signed in.
+  const ready = schemeReady && (fontsLoaded || !!fontError) && !session.isPending;
+
+  useEffect(() => {
+    if (ready) SplashScreen.hideAsync();
+  }, [ready]);
+
+  if (!ready) return null;
+
+  const signedIn = !!session.data;
+  const base = scheme === "dark" ? DarkTheme : DefaultTheme;
+  const theme = {
+    ...base,
+    colors: {
+      ...base.colors,
+      primary: colors.primary,
+      background: colors.background,
+      card: colors.card,
+      text: colors.foreground,
+      border: colors.border,
+    },
+  };
+
+  return (
+    <ThemeProvider value={theme}>
+      <Stack screenOptions={{ headerShown: false }}>
+        {/* Signed out, only the login screen exists; the app's screens redirect to it. */}
+        <Stack.Protected guard={signedIn}>
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="tour/[id]" />
+        </Stack.Protected>
+        <Stack.Protected guard={!signedIn}>
+          <Stack.Screen name="login" />
+        </Stack.Protected>
+      </Stack>
+      {/* Light text on the green header; the login screen has a light surface. */}
+      <StatusBar style={!signedIn ? "auto" : scheme === "dark" ? "dark" : "light"} />
     </ThemeProvider>
   );
 }
